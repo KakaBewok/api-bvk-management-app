@@ -9,10 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**") // Menentukan endpoint mana yang diizinkan
-				.allowedOrigins("*") // Mengizinkan semua origin
-				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Metode yang diizinkan
-				.allowedHeaders("*") // Mengizinkan semua header
-				.exposedHeaders("Authorization"); // Jika Anda ingin mengekspos header tertentu
+		registry.addMapping("/**") 
+				.allowedOrigins("*") 
+				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") 
+				.allowedHeaders("*") 
+				.exposedHeaders("Authorization");
 	}
 }

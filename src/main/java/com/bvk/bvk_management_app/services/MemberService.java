@@ -16,7 +16,7 @@ public class MemberService {
     private MemberRepository memberRepository;
 
     public List<Member> getAllMembers() {
-        return memberRepository.findAll();
+        return memberRepository. findAllByOrderByCreatedAtDesc();
     }
 
     public Optional<Member> getMemberById(UUID id) {
