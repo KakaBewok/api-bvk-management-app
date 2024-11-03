@@ -26,13 +26,12 @@ public class MemberService {
     public Member createMember(Member member) {
     	//logic nyimpen gambar tambahin
     	
-    	// Jika superior tidak null, lakukan validasi apakah superior tersebut ada di database
         if (member.getSuperior() != null) {
             UUID superiorId = member.getSuperior().getId();
             Optional<Member> superior = memberRepository.findById(superiorId);
 
             if (superior.isPresent()) {
-                member.setSuperior(superior.get()); // Set superior jika valid
+                member.setSuperior(superior.get());
             } else {
                 throw new IllegalArgumentException("Superior with ID " + superiorId + " not found");
             }

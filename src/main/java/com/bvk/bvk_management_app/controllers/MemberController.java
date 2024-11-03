@@ -36,7 +36,7 @@ public class MemberController {
 		return member.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
-	@PostMapping
+	@PostMapping("/store")
 	public ResponseEntity<Member> createMember(@RequestBody Member member) {
 		Member createdMember = memberService.createMember(member);
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
