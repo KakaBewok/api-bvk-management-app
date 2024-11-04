@@ -26,6 +26,7 @@ public class MemberService {
     public Member createMember(Member member) {
     	//logic nyimpen gambar tambahin
     	
+    	
         if (member.getSuperior() != null) {
             UUID superiorId = member.getSuperior().getId();
             Optional<Member> superior = memberRepository.findById(superiorId);
@@ -40,3 +41,37 @@ public class MemberService {
         return memberRepository.save(member);
     }
 }
+
+//@RestController
+//@RequestMapping("/api/v1/members")
+//public class MemberController {
+//
+//    @Value("${upload.path}")
+//    private String uploadPath;
+//
+//    @PostMapping("/upload")
+//    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+//        if (file.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty");
+//        }
+//
+//        try {
+//            // Generate unique file name
+//            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+//            Path filePath = Paths.get(uploadPath, fileName);
+//
+//            // Save the file to the file system
+//            Files.createDirectories(filePath.getParent());
+//            file.transferTo(filePath.toFile());
+//
+//            // Return the file URL (in a real case, you might want to use a dedicated file server or cloud storage)
+//            String fileUrl = "/images/" + fileName;
+//            return ResponseEntity.ok(fileUrl);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image");
+//        }
+//    }
+//}
+
