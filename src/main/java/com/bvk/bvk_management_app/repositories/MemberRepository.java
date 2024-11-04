@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.bvk.bvk_management_app.models.Member;
+import com.bvk.bvk_management_app.entities.Member;
 
 public interface MemberRepository extends JpaRepository<Member, UUID> {
 	List<Member> findAllByOrderByCreatedAtDesc();

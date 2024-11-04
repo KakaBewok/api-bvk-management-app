@@ -1,77 +1,79 @@
 package com.bvk.bvk_management_app.services;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.bvk.bvk_management_app.models.Member;
+import com.bvk.bvk_management_app.entities.Member;
+import com.bvk.bvk_management_app.models.MemberRequest;
 import com.bvk.bvk_management_app.repositories.MemberRepository;
 
 @Service
 public class MemberService {
 	@Autowired
-    private MemberRepository memberRepository;
+	private MemberRepository memberRepository;
+	@Value("${upload.path}")
+	private String uploadPath;
 
-    public List<Member> getAllMembers() {
-        return memberRepository. findAllByOrderByCreatedAtDesc();
-    }
+	public List<Member> getAllMembers() {
+		return memberRepository.findAllByOrderByCreatedAtDesc();
+	}
 
-    public Optional<Member> getMemberById(UUID id) {
-        return memberRepository.findById(id);
-    }
+	public Optional<Member> getMemberById(UUID id) {
+		return memberRepository.findById(id);
+	}
 
-    public Member createMember(Member member) {
-    	//logic nyimpen gambar tambahin
-    	
-    	
-        if (member.getSuperior() != null) {
-            UUID superiorId = member.getSuperior().getId();
-            Optional<Member> superior = memberRepository.findById(superiorId);
+	public Member createMember(MemberRequest memberRequest) throws Exception {
+		Member member = new Member();
 
-            if (superior.isPresent()) {
-                member.setSuperior(superior.get());
-            } else {
-                throw new IllegalArgumentException("Superior with ID " + superiorId + " not found");
-            }
-        }
-    	
-        return memberRepository.save(member);
-    }
+		String path = uploadImage(memberRequest);
+		member.setPictureUrl(path);
+		member.setName(memberRequest.name());
+		member.setPosition(memberRequest.position());
+
+		if (memberRequest.superior() != null) {
+			Member superior = memberRepository.findById(memberRequest.superior()).orElseThrow(
+					() -> new IllegalArgumentException("Superior not found with ID: " + memberRequest.superior()));
+			member.setSuperior(superior);
+		}
+
+		return memberRepository.save(member);
+	}
+
+	private String uploadImage(MemberRequest memberRequest) throws IOException {
+		MultipartFile fileImage = memberRequest.picture();
+		String originalFileName = fileImage.getOriginalFilename();
+
+		if (originalFileName != null && !isValidImageType(originalFileName)) {
+			throw new IllegalArgumentException("File type is invalid, only  JPG, JPEG, WEBP and PNG.");
+		}
+		try {
+			Path uploadDirectory = Paths.get(uploadPath).toAbsolutePath();
+			if (!Files.exists(uploadDirectory)) {
+				Files.createDirectories(uploadDirectory);
+			}
+			String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
+			Path filePath = uploadDirectory.resolve(fileName);
+			fileImage.transferTo(filePath.toFile());
+
+			return "uploads/" + fileName;
+		} catch (IOException e) {
+			throw new IOException("Failed to upload picture file", e);
+		}
+	}
+
+	private Boolean isValidImageType(String fileName) {
+		String lowerCaseFileName = fileName.toLowerCase();
+		return lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")
+				|| lowerCaseFileName.endsWith(".png") || lowerCaseFileName.endsWith(".webp");
+	}
 }
-
-//@RestController
-//@RequestMapping("/api/v1/members")
-//public class MemberController {
-//
-//    @Value("${upload.path}")
-//    private String uploadPath;
-//
-//    @PostMapping("/upload")
-//    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
-//        if (file.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty");
-//        }
-//
-//        try {
-//            // Generate unique file name
-//            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-//            Path filePath = Paths.get(uploadPath, fileName);
-//
-//            // Save the file to the file system
-//            Files.createDirectories(filePath.getParent());
-//            file.transferTo(filePath.toFile());
-//
-//            // Return the file URL (in a real case, you might want to use a dedicated file server or cloud storage)
-//            String fileUrl = "/images/" + fileName;
-//            return ResponseEntity.ok(fileUrl);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image");
-//        }
-//    }
-//}
-
